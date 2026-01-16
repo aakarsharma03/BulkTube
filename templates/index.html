@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BulkTube | Premium Video Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fa-brands fa-youtube"></i>
+                <h1>BulkTube</h1>
+            </div>
+            <p class="subtitle">Paste links. Batch processing. Premium quality.</p>
+        </header>
+
+        <div class="input-section">
+            <div class="input-wrapper">
+                <i class="fa-solid fa-link input-icon"></i>
+                <textarea id="encodedVideoUrl"
+                    placeholder="Paste YouTube links here (separated by comma or new line)..." autocomplete="off"
+                    rows="1"></textarea>
+                <button id="addBtn"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <div class="stats">
+                <span id="queueCount">0</span> videos in queue
+            </div>
+            <div class="actions-buttons">
+                <button id="downloadAllBtn" class="primary-btn" disabled>
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Download All
+                </button>
+                <button id="stopBtn" class="primary-btn stop-btn" style="display: none; background: #ef4444;">
+                    <i class="fa-solid fa-stop"></i> Stop
+                </button>
+            </div>
+        </div>
+
+        <div class="video-list" id="videoList">
+            <!-- Video Cards will be injected here -->
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
