@@ -2,7 +2,7 @@
 
 **BulkTube** is a premium, locally-hosted YouTube downloader built with Python (Flask) and a modern Glassmorphism UI. It allows you to paste multiple links, select quality, and download videos in bulk using the powerful `yt-dlp` library.
 
-![BulkTube Screenshot](https://via.placeholder.com/800x450?text=BulkTube+UI+Preview)
+![BulkTube Screenshot](Screenshot.png)
 
 ## Features
 
