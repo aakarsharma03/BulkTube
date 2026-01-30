@@ -32,49 +32,46 @@ def get_video_info():
             info = ydl.extract_info(url, download=False)
             
             # Extract relevant formats (video + audio best combinations or specific resolutions)
-            # Simplified approach: return list of available formats that have video
             formats = []
             seen_res = set()
-            
-            # Sort formats by resolution height (descending)
-            all_formats = info.get('formats', [])
-            # Filter for mp4/useful formats
-            for f in all_formats:
-                if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
-                    # It's a progressive stream (video+audio)
-                    res = f.get('height')
-                    if res and res not in seen_res:
-                        formats.append({
-                            'format_id': f['format_id'],
-                            'resolution': f'{res}p',
-                            'ext': f['ext'],
-                            'filesize': f.get('filesize'),
-                            'label': f"{res}p ({f['ext']})"
-                        })
-                        seen_res.add(res)
-            
-            # Also add best video-only streams combined with best audio if needed? 
-            # For simplicity in this "BulkTube", let's stick to progressive or let yt-dlp merge them if we request 'bestvideo+bestaudio'.
-            # BUT, user wants to SELECT quality.
-            # Usually, yt-dlp handles merging. If we want specific resolution, we pass it.
-            # Let's just offer generic "Best", "1080p", "720p", "480p" etc. and let yt-dlp pick the format.
-            
-            # Refined approach: Just return the metadata and let user pick "Best" or common resolutions.
-            # or better: Return actual available resolutions.
-            
-            # Simple list of common resolutions to check availability against 'formats':
             available_resolutions = []
-            for f in all_formats:
-                if f.get('height'):
-                    available_resolutions.append(f.get('height'))
+            
+            all_formats = info.get('formats', [])
+            
+            # If no formats found, it might be a direct file (common in some extractors like Instagram)
+            if not all_formats and info.get('url'):
+                 # It's likely a single file
+                 pass 
+
+            # Filter for mp4/useful formats if they exist
+            if all_formats:
+                for f in all_formats:
+                    # Check for video streams (some might not have acodec if it's video-only, but we want ready-to-play)
+                    # For Instagram, often 'vcodec' is not 'none' and 'acodec' is not 'none' usually works,
+                    # but sometimes simple file entries don't have these clearly defined.
+                    is_video = f.get('vcodec') != 'none'
+                    # Some inputs might be direct video files
+                    
+                    if is_video:
+                        res = f.get('height')
+                        if res:
+                            available_resolutions.append(res)
             
             available_resolutions = sorted(list(set(available_resolutions)), reverse=True)
-            resolution_options = [{'id': f'best', 'label': 'Best Quality'}]
-            for res in available_resolutions:
-                resolution_options.append({'id': str(res), 'label': f'{res}p'})
+            
+            resolution_options = [{'id': 'best', 'label': 'Best Quality'}]
+            
+            if available_resolutions:
+                for res in available_resolutions:
+                    resolution_options.append({'id': str(res), 'label': f'{res}p'})
+            
+            # Fallback if no specific resolutions found but we have a valid video
+            # (common for some Instagram videos where we just get one "one quality")
+            if not resolution_options and (info.get('url') or all_formats):
+                 resolution_options = [{'id': 'best', 'label': 'Best Quality'}]
 
             return jsonify({
-                'title': info.get('title'),
+                'title': info.get('title') or 'Video',
                 'thumbnail': info.get('thumbnail'),
                 'duration': info.get('duration_string'),
                 'url': url,
@@ -99,7 +96,7 @@ def download_video():
     
     ydl_opts = {
         'format': 'best[ext=mp4]/best', # Prefer mp4, fallback to best available
-        'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
+        'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s [%(id)s].%(ext)s'),
         'quiet': False,
         'nocheckcertificate': True,
         'extractor_args': {
